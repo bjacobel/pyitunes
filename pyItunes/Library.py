@@ -2,9 +2,9 @@ from pyItunes.Song import Song
 from pyItunes.Playlist import Playlist,PlTrack
 import time
 import plistlib
-import urlparse
+import urllib.parse
 import time
-import urllib
+import urllib.request, urllib.parse, urllib.error
 
 try:
 	import xspf
@@ -32,7 +32,7 @@ class Library:
 	
 	def getSongs(self):
 		format = "%Y-%m-%d %H:%M:%S"
-		for trackid,attributes in self.il['Tracks'].iteritems():
+		for trackid,attributes in self.il['Tracks'].items():
 			s = Song()
 			s.name = attributes.get('Name')
 			s.artist = attributes.get('Artist')
@@ -68,9 +68,9 @@ class Library:
 				s.play_count = int(attributes.get('Play Count'))
 			if attributes.get('Location'):
 				if ( self.musicPathXML is None or self.musicPathSystem is None ):
-					s.location = unicode(urlparse.unquote(urlparse.urlparse(attributes.get('Location')).path[1:]),"utf8")
+					s.location = str(urllib.parse.unquote(urllib.parse.urlparse(attributes.get('Location')).path[1:]),"utf8")
 				else:
-					s.location = unicode(urlparse.unquote(urlparse.urlparse(attributes.get('Location')).path[1:]).replace(self.musicPathXML,self.musicPathSystem),"utf8")
+					s.location = str(urllib.parse.unquote(urllib.parse.urlparse(attributes.get('Location')).path[1:]).replace(self.musicPathXML,self.musicPathSystem),"utf8")
 			s.compilation = 'Compilation' in attributes
 			if attributes.get('Play Date UTC'):
 				s.lastplayed = time.strptime(str(attributes.get('Play Date UTC')),format)
@@ -91,7 +91,7 @@ class Library:
 	
 	def getPlaylistNames(self,ignoreList=("Library","Music","Movies","TV Shows","Purchased","iTunes DJ","Podcasts")):
 		if (self.legacymode):
-			print "getPlaylistNames is disabled in legacy mode."
+			print("getPlaylistNames is disabled in legacy mode.")
 			return []
 		else:
 			playlists = []
@@ -102,7 +102,7 @@ class Library:
 	
 	def getPlaylist(self,playlistName):
 		if (self.legacymode):
-			print "getPlaylist is disabled in legacy mode."
+			print("getPlaylist is disabled in legacy mode.")
 			return Playlist(playlistName)
 		else:
 			for playlist in self.il['Playlists']:
@@ -139,6 +139,6 @@ class Library:
 						x.add_track(title=self.songs[id].name, creator="",location=self.songs[id].location)
 					return x.toXml()
 		else:
-			print "xspf library missing, go to https://github.com/alastair/xspf to install."
+			print("xspf library missing, go to https://github.com/alastair/xspf to install.")
 			return None
 
